@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jessie.onlineexaminationsystem.mapper.StudentMapper">
+
+    <resultMap id="BaseResultMap" type="com.jessie.onlineexaminationsystem.domain.Student">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="no" column="no" jdbcType="VARCHAR"/>
+        <result property="school" column="school" jdbcType="VARCHAR"/>
+        <result property="profession" column="profession" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="BaseResultMap2" type="com.jessie.onlineexaminationsystem.domain.Student">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="no" column="no" jdbcType="VARCHAR"/>
+        <result property="school" column="school" jdbcType="VARCHAR"/>
+        <result property="profession" column="profession" jdbcType="VARCHAR"/>
+        <collection property="courses" ofType="com.jessie.onlineexaminationsystem.domain.Course">
+            <id property="id" column="cid" jdbcType="INTEGER"/>
+            <result property="name" column="cname" jdbcType="VARCHAR"/>
+            <result property="teacher" column="teacher" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,no,
+        school,profession
+    </sql>
+    <insert id="insertAll">
+        insert into student
+        (id, name, no,
+         school, profession)
+        values (#{id,jdbcType=NUMERIC}, #{name,jdbcType=VARCHAR}, #{no,jdbcType=VARCHAR},
+                #{school,jdbcType=VARCHAR}, #{profession,jdbcType=VARCHAR})
+
+    </insert>
+    <insert id="insertAll2">
+        insert into student
+        (id, name, no,
+         school, profession)
+        values (#{uid,jdbcType=NUMERIC}, #{name,jdbcType=VARCHAR}, #{no,jdbcType=VARCHAR},
+                #{school,jdbcType=VARCHAR}, #{profession,jdbcType=VARCHAR})
+    </insert>
+    <select id="getOneById" resultMap="BaseResultMap2">
+        select s.id,
+               s.name,
+               s.no,
+               s.school,
+               s.profession,
+               c.id   as cid,
+               c.teacher,
+               c.name as cname
+        from student s
+                 join student_course sc on s.id = sc.sid
+                 join course c on sc.cid = c.id
+        where s.id = #{id,jdbcType=NUMERIC}
+    </select>
+    <select id="selectAllBySchoolOrNoOrProfession" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from student
+        where
+        school = #{school,jdbcType=VARCHAR}
+        OR no = #{no,jdbcType=VARCHAR}
+        OR profession = #{profession,jdbcType=VARCHAR} OR name=#{name,jdbcType=VARCHAR}
+    </select>
+    <select id="selectStuInfoByExamID" resultMap="BaseResultMap">
+        select s.id,
+               name,
+               no,
+               school,
+               profession
+        from exam_stu sc
+                 join student s on sc.uid = s.id
+        where sc.examID = #{cid}
+
+    </select>
+    <select id="selectAll" resultType="com.jessie.onlineexaminationsystem.domain.Student">
+        select s.id,
+               name,
+               no,
+               school,
+               profession
+        from student s
+                 join user u on u.uid = s.id
+        where u.role = 'student'
+    </select>
+</mapper>

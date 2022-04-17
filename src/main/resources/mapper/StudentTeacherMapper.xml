@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jessie.onlineexaminationsystem.mapper.StudentTeacherMapper">
+
+    <resultMap id="BaseResultMap" type="com.jessie.onlineexaminationsystem.domain.StudentTeacher">
+        <result property="sid" column="sid" jdbcType="INTEGER"/>
+        <result property="tid" column="tid" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        sid,tid
+    </sql>
+    <insert id="insertBatch">
+        insert into student_teacher(sid,tid)
+        values
+        <foreach collection="studentTeacherCollection" item="item" separator=",">
+            (#{item,jdbcType=NUMERIC},#{teacher,jdbcType=NUMERIC})
+        </foreach>
+    </insert>
+    <select id="selectAllByTid" resultType="com.jessie.onlineexaminationsystem.domain.Student">
+        select *
+        from student_teacher st
+                 join student s on st.sid = s.id
+        where st.tid = #{teacher}
+    </select>
+    <delete id="deleteBySid">
+        delete
+        from student_teacher
+        where tid=#{teacher} and sid in (
+        <foreach collection="studentTeacherCollection" item="item" separator=",">
+            #{item}
+        </foreach>
+        )
+    </delete>
+
+</mapper>

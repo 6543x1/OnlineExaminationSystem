@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jessie.onlineexaminationsystem.mapper.CourseMapper">
+
+    <resultMap id="BaseResultMap" type="com.jessie.onlineexaminationsystem.domain.Course">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="teacher" column="teacher" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,teacher,name
+    </sql>
+    <select id="selectById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from course
+        where
+        id = #{id,jdbcType=NUMERIC}
+    </select>
+    <insert id="insertAll" useGeneratedKeys="true" keyProperty="id">
+        insert into course
+            (teacher, name)
+        values (#{teacher,jdbcType=NUMERIC}, #{name,jdbcType=VARCHAR})
+
+    </insert>
+    <select id="selectByTeacher" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from course
+        where
+        teacher = #{teacher,jdbcType=NUMERIC}
+    </select>
+</mapper>

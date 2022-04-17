@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jessie.onlineexaminationsystem.mapper.TeacherQuestionStoreMapper">
+
+    <resultMap id="BaseResultMap" type="com.jessie.onlineexaminationsystem.domain.TeacherQuestionStore">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="public" column="public" jdbcType="TINYINT"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="BaseResultMap2" type="com.jessie.onlineexaminationsystem.domain.TeacherQuestionStoreVO">
+        <association property="teacherQuestionStore"
+                     javaType="com.jessie.onlineexaminationsystem.domain.TeacherQuestionStore">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="public" column="public" jdbcType="TINYINT"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="description" column="description" jdbcType="VARCHAR"/>
+        </association>
+        <collection property="questions"
+                    resultMap="com.jessie.onlineexaminationsystem.mapper.SelectionsMapper.BaseResultMap"/>
+
+    </resultMap>
+    <resultMap id="BaseResultMapBlanks" type="com.jessie.onlineexaminationsystem.domain.TeacherQuestionStoreVO">
+        <association property="teacherQuestionStore"
+                     javaType="com.jessie.onlineexaminationsystem.domain.TeacherQuestionStore">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="public" column="public" jdbcType="TINYINT"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="description" column="description" jdbcType="VARCHAR"/>
+        </association>
+        <collection property="questions"
+                    resultMap="com.jessie.onlineexaminationsystem.mapper.BlanksMapper.BaseResultMap"/>
+
+    </resultMap>
+    <resultMap id="BaseResultMapAnswerQuestions"
+               type="com.jessie.onlineexaminationsystem.domain.TeacherQuestionStoreVO">
+        <association property="teacherQuestionStore"
+                     javaType="com.jessie.onlineexaminationsystem.domain.TeacherQuestionStore">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="public" column="public" jdbcType="TINYINT"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="description" column="description" jdbcType="VARCHAR"/>
+        </association>
+        <collection property="questions"
+                    resultMap="com.jessie.onlineexaminationsystem.mapper.AnswerQuestionMapper.BaseResultMap"/>
+
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,public,
+        updateTime,description,type
+    </sql>
+    <insert id="insertAll">
+        insert into teacher_question_store
+        (name, public,
+         updateTime, teacher, description, type)
+        values (#{name,jdbcType=VARCHAR}, #{isPublic},
+                #{updateTime}, #{teacher}, #{description}, #{type})
+
+    </insert>
+    <select id="selectOneById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from teacher_question_store
+        where
+        id = #{id,jdbcType=NUMERIC}
+    </select>
+    <select id="selectOneById2" resultMap="BaseResultMap2">
+        select tqs.id,
+               tqs.name,
+               tqs.public,
+               tqs.updateTime,
+               tqs.description,
+               s.id,
+               body,
+               A,
+               B,
+               C,
+               D,
+               ans,
+               s.teacher,
+               isPublic,
+               uploadTime
+        from teacher_question_store tqs
+                 join selection_store ss on tqs.id = ss.sid
+                 join selections s on s.id = ss.qid
+        where tqs.id = #{id,jdbcType=NUMERIC}
+    </select>
+    <select id="selectSelectionsByStore"
+            resultMap="com.jessie.onlineexaminationsystem.mapper.SelectionsMapper.BaseResultMap">
+        select s.id,
+               body,
+               A,
+               B,
+               C,
+               D,
+               ans,
+               teacher,
+               isPublic,
+               uploadTime
+        from selection_store ss
+                 join selections s on ss.qid = s.id
+        where ss.sid = #{store}
+    </select>
+    <select id="selectBlanksByStore" resultMap="com.jessie.onlineexaminationsystem.mapper.BlanksMapper.BaseResultMap">
+        select b.id, body, ans, teacher, isPublic, uploadTime
+        from blanks_store bs
+                 join blanks b on bs.qid = b.id
+        where bs.sid = #{store}
+    </select>
+    <select id="selectAnswerQuestionsByStore"
+            resultMap="com.jessie.onlineexaminationsystem.mapper.AnswerQuestionMapper.BaseResultMap">
+        select aq.id, body, ans, teacher, isPublic, uploadTime
+        from answer_question_store ans
+                 join answer_question aq on ans.qid = aq.id
+        where ans.sid = #{store}
+    </select>
+    <select id="selectByTeacher" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from teacher_question_store
+        where
+        teacher = #{teacher,jdbcType=NUMERIC}
+    </select>
+</mapper>

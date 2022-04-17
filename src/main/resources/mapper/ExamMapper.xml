@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jessie.onlineexaminationsystem.mapper.ExamMapper">
+
+    <resultMap id="BaseResultMap" type="com.jessie.onlineexaminationsystem.domain.Exam">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="startTime" column="startTime" jdbcType="TIMESTAMP"/>
+        <result property="endTime" column="endTime" jdbcType="TIMESTAMP"/>
+        <result property="publishTime" column="publishTime" jdbcType="TIMESTAMP"/>
+        <result property="publicTime" column="publicTime" jdbcType="TIMESTAMP"/>
+        <result property="passScore" column="pass_score" jdbcType="INTEGER"/>
+        <result property="chance" column="chance" jdbcType="INTEGER"/>
+        <result property="examPaperID" column="examPaperId" jdbcType="INTEGER"/>
+        <result property="limitTime" column="limit_time" jdbcType="INTEGER"/>
+        <result property="duration" column="duration" jdbcType="INTEGER"/>
+        <result property="teacher" column="teacher" jdbcType="INTEGER"/>
+        <result property="infoTime" column="info_time" jdbcType="TIMESTAMP"/>
+        <result property="notes" column="notes" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="withScoreMap" type="com.jessie.onlineexaminationsystem.domain.ExamWithScore">
+        <id column="id"/>
+        <result property="scores" column="scores" jdbcType="INTEGER"/>
+
+        <!--    注意顺序 association 在下   -->
+        <association property="exam">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="startTime" column="startTime" jdbcType="TIMESTAMP"/>
+            <result property="endTime" column="endTime" jdbcType="TIMESTAMP"/>
+            <result property="publishTime" column="publishTime" jdbcType="TIMESTAMP"/>
+            <result property="publicTime" column="publicTime" jdbcType="TIMESTAMP"/>
+            <result property="passScore" column="pass_score" jdbcType="INTEGER"/>
+            <result property="chance" column="chance" jdbcType="INTEGER"/>
+            <result property="examPaperID" column="examPaperId" jdbcType="INTEGER"/>
+            <result property="limitTime" column="limit_time" jdbcType="INTEGER"/>
+            <result property="duration" column="duration" jdbcType="INTEGER"/>
+            <result property="teacher" column="teacher" jdbcType="INTEGER"/>
+            <result property="infoTime" column="info_time" jdbcType="TIMESTAMP"/>
+            <result property="notes" column="notes" jdbcType="VARCHAR"/>
+        </association>
+
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,startTime,
+        endTime,publishTime,publicTime,
+        pass_score,chance,examPaperId,
+        limit_time,duration,teacher,
+        info_time,notes
+    </sql>
+    <insert id="insertAll" useGeneratedKeys="true" keyProperty="id">
+        insert into exam
+        (name, startTime,
+         endTime, publishTime, publicTime,
+         pass_score, chance, examPaperId,
+         limit_time, duration, teacher,
+         info_time, notes)
+        values (#{name,jdbcType=VARCHAR}, #{startTime},
+                #{endTime}, #{publishTime}, #{publicTime},
+                #{passScore,jdbcType=NUMERIC}, #{chance,jdbcType=NUMERIC}, #{examPaperID,jdbcType=NUMERIC},
+                #{limitTime,jdbcType=NUMERIC}, #{duration,jdbcType=NUMERIC}, #{teacher,jdbcType=NUMERIC},
+                #{infoTime}, #{notes,jdbcType=VARCHAR})
+
+    </insert>
+    <select id="selectByTeacher" resultMap="withScoreMap">
+        select exam.id as id,
+               exam.name,
+               startTime,
+               endTime,
+               publishTime,
+               publicTime,
+               pass_score,
+               chance,
+               examPaperId,
+               limit_time,
+               duration,
+               exam.teacher,
+               info_time,
+               notes,
+               ep.scores
+        from exam
+                 join exam_paper ep on ep.id = exam.examPaperId
+        where exam.teacher = #{teacher,jdbcType=NUMERIC}
+    </select>
+    <select id="selectStudentByTeacher"
+            resultMap="com.jessie.onlineexaminationsystem.mapper.StudentMapper.BaseResultMap2">
+        select s.id,
+               s.name,
+               s.no,
+               school,
+               profession
+        from exam
+                 join exam_stu es on exam.id = es.examID
+                 join student s on s.id = es.uid
+        where exam.teacher = #{teacher,jdbcType=NUMERIC}
+    </select>
+    <select id="selectByStudentID" resultType="com.jessie.onlineexaminationsystem.domain.ExamWithScore"
+            resultMap="withScoreMap">
+        select exam.id,
+               name,
+               startTime,
+               endTime,
+               publishTime,
+               publicTime,
+               pass_score,
+               chance,
+               examPaperId,
+               limit_time,
+               duration,
+               exam.teacher,
+               info_time,
+               notes,
+               ep.scores
+        from exam
+                 join exam_paper ep on ep.id = exam.examPaperId
+                 join exam_stu es on es.examID = exam.id
+        where es.uid = #{sid}
+    </select>
+    <select id="selectByExamId" resultMap="withScoreMap">
+        select exam.id,
+               name,
+               startTime,
+               endTime,
+               publishTime,
+               publicTime,
+               pass_score,
+               chance,
+               examPaperId,
+               limit_time,
+               duration,
+               exam.teacher,
+               info_time,
+               notes,
+               ep.scores
+        from exam
+                 join exam_paper ep on ep.id = exam.examPaperId
+        where exam.id = #{id}
+    </select>
+</mapper>

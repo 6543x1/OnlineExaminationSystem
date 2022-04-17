@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jessie.onlineexaminationsystem.mapper.BlanksStoreMapper">
+
+    <resultMap id="BaseResultMap" type="com.jessie.onlineexaminationsystem.domain.BlanksStore">
+        <result property="qid" column="qid" jdbcType="INTEGER"/>
+        <result property="sid" column="sid" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        qid,sid
+    </sql>
+    <insert id="insertBatch">
+        insert into blanks_store(qid,sid)
+        values
+        <foreach collection="blanksStoreCollection" item="item" separator=",">
+            (#{item.id,jdbcType=NUMERIC},#{store,jdbcType=NUMERIC})
+        </foreach>
+    </insert>
+</mapper>

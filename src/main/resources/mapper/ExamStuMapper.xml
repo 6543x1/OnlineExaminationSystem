@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jessie.onlineexaminationsystem.mapper.ExamStuMapper">
+
+    <resultMap id="BaseResultMap" type="com.jessie.onlineexaminationsystem.domain.ExamStu">
+        <result property="examID" column="examID" jdbcType="INTEGER"/>
+        <result property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="points" column="points" jdbcType="INTEGER"/>
+        <result property="examPaper" column="examPaper"/>
+    </resultMap>
+    <resultMap id="ExamWithScoreAndPointsMap" type="com.jessie.onlineexaminationsystem.domain.ExamWithPointsAndScore">
+        <result property="points" column="points" jdbcType="INTEGER"/>
+        <result property="scores" column="scores" jdbcType="INTEGER"/>
+        <association property="exam">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="startTime" column="startTime" jdbcType="TIMESTAMP"/>
+            <result property="endTime" column="endTime" jdbcType="TIMESTAMP"/>
+            <result property="publishTime" column="publishTime" jdbcType="TIMESTAMP"/>
+            <result property="publicTime" column="publicTime" jdbcType="TIMESTAMP"/>
+            <result property="passScore" column="pass_score" jdbcType="INTEGER"/>
+            <result property="chance" column="chance" jdbcType="INTEGER"/>
+            <result property="examPaperID" column="examPaperId" jdbcType="INTEGER"/>
+            <result property="limitTime" column="limit_time" jdbcType="INTEGER"/>
+            <result property="duration" column="duration" jdbcType="INTEGER"/>
+            <result property="teacher" column="teacher" jdbcType="INTEGER"/>
+            <result property="infoTime" column="info_time" jdbcType="TIMESTAMP"/>
+            <result property="notes" column="notes" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+    <resultMap id="StuPointsVOMap" type="com.jessie.onlineexaminationsystem.domain.StuPointsVO">
+        <result property="examID" column="examID" jdbcType="INTEGER"/>
+        <result property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="points" column="points" jdbcType="INTEGER"/>
+        <result property="name" column="name"/>
+        <result property="uid" column="uid"/>
+        <result property="profession" column="profession"/>
+        <result property="no" column="nb"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        examID,uid,examPaper,points
+    </sql>
+    <insert id="insertBatch">
+        insert into exam_stu(examID,uid)
+        values
+        <foreach collection="examStuCollection" item="item" separator=",">
+            (#{examID,jdbcType=NUMERIC},#{item,jdbcType=NUMERIC})
+        </foreach>
+    </insert>
+    <select id="selectByUid" resultMap="ExamWithScoreAndPointsMap">
+        select es.examID
+             , uid
+             , points
+             , e.id
+             , name
+             , startTime
+             , endTime
+             , publishTime
+             , publicTime
+             , pass_score
+             , chance
+             , examPaperId
+             , limit_time
+             , duration
+             , e.teacher
+             , info_time
+             , notes
+             , scores
+        from exam_stu es
+                 join exam e on es.examID = e.id
+                 join exam_paper ep on e.examPaperId = ep.id
+        where uid = #{uid,jdbcType=NUMERIC}
+    </select>
+    <update id="updatePoints">
+        update exam_stu
+        set points=#{points}
+        where examID = #{examID}
+          and uid = #{uid}
+    </update>
+    <update id="updateExamPaperByExamIDAndUid">
+        update exam_stu
+        set examPaper = #{examPaper}
+        <if test="points!=null">
+            ,points=#{points}
+        </if>
+        where examID = #{examID,jdbcType=NUMERIC}
+        AND uid = #{uid,jdbcType=NUMERIC}
+    </update>
+    <select id="selectAllByExamID" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from exam_stu
+        where
+        examID = #{examID,jdbcType=NUMERIC}
+    </select>
+    <select id="selectByExamID" resultMap="ExamWithScoreAndPointsMap">
+        select es.examID
+             , uid
+             , points
+             , e.id
+             , name
+             , startTime
+             , endTime
+             , publishTime
+             , publicTime
+             , pass_score
+             , chance
+             , examPaperId
+             , limit_time
+             , duration
+             , e.teacher
+             , info_time
+             , notes
+             , scores
+        from exam_stu es
+                 join exam e on es.examID = e.id
+                 join exam_paper ep on e.examPaperId = ep.id
+        where examID = #{examID}
+
+    </select>
+
+    <select id="selectByExamID2" resultMap="StuPointsVOMap">
+        select points,
+               s.id as uid,
+               s.name,
+               s.no,
+               school,
+               profession
+        from exam_stu es
+                 join student s on es.uid = s.id
+        where examID = #{examID}
+
+    </select>
+</mapper>

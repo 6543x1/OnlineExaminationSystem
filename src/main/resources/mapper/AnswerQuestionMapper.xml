@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jessie.onlineexaminationsystem.mapper.AnswerQuestionMapper">
+
+    <resultMap id="BaseResultMap" type="com.jessie.onlineexaminationsystem.domain.AnswerQuestion">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="body" column="body" jdbcType="VARCHAR"/>
+        <result property="ans" column="ans" jdbcType="VARCHAR"/>
+        <result property="teacher" column="teacher" jdbcType="INTEGER"/>
+        <result property="public" column="isPublic" jdbcType="TINYINT"/>
+        <result property="uploadTime" column="uploadTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,body,ans,
+        teacher,isPublic,uploadTime
+    </sql>
+    <insert id="insertAll" useGeneratedKeys="true" keyProperty="id">
+        insert into answer_question
+        (body, ans,
+         teacher, isPublic, uploadTime)
+        values (#{body,jdbcType=VARCHAR}, #{ans,jdbcType=VARCHAR},
+                #{teacher,jdbcType=NUMERIC}, #{isPublic}, #{uploadTime})
+
+    </insert>
+    <select id="selectByTeacher" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from answer_question
+        where
+        teacher = #{teacher,jdbcType=NUMERIC}
+    </select>
+    <select id="searchAllByBody" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from answer_question
+        where
+        match(body) against(#{body}) and isPublic=true
+    </select>
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into answer_question(body,ans,
+        teacher,isPublic)
+        values
+        <foreach collection="answerQuestionCollection" item="item" separator=",">
+            (#{item.body,jdbcType=VARCHAR},#{item.ans,jdbcType=VARCHAR},
+            #{item.teacher,jdbcType=NUMERIC},#{item.isPublic})
+        </foreach>
+    </insert>
+</mapper>

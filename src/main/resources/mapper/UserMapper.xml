@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jessie.onlineexaminationsystem.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.jessie.onlineexaminationsystem.domain.User">
+        <id property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="mail" column="mail" jdbcType="VARCHAR"/>
+        <result property="role" column="role" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="BaseResultMap2" type="com.jessie.onlineexaminationsystem.domain.UserVO">
+        <id property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="mail" column="mail" jdbcType="VARCHAR"/>
+        <result property="role" column="role" jdbcType="VARCHAR"/>
+        <result property="mail" column="mail" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="school" column="school" jdbcType="VARCHAR"/>
+        <result property="profession" column="profession" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        uid,username,password,
+        mail,role
+    </sql>
+    <select id="selectOnePasswordByUsername" resultMap="BaseResultMap">
+        select uid,
+               username,
+               password
+        from user
+        where username = #{username,jdbcType=VARCHAR}
+    </select>
+    <select id="selectRoleByUid" resultType="java.lang.String">
+        select role
+        from user
+        where uid = #{uid,jdbcType=NUMERIC}
+    </select>
+    <insert id="insertAll" keyColumn="uid" keyProperty="uid" useGeneratedKeys="true">
+        insert into user
+        (username, password,
+         mail, role)
+        values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+                #{mail,jdbcType=VARCHAR}, #{role,jdbcType=VARCHAR})
+
+    </insert>
+    <select id="selectOneByUid" resultMap="BaseResultMap">
+        select user.uid,
+               username,
+               password,
+               mail,
+               role,
+               name,
+               no,
+               school,
+               profession
+        from user
+                 join student s on user.uid = s.id
+        where uid = #{uid,jdbcType=NUMERIC}
+    </select>
+    <update id="updateMailByUidOrUsername">
+        update user
+        set mail = #{mail,jdbcType=VARCHAR}
+        where username = #{username,jdbcType=VARCHAR}
+    </update>
+    <update id="updateMailByUid">
+        update user
+        set mail = #{mail,jdbcType=VARCHAR}
+        where uid = #{uid,jdbcType=NUMERIC}
+    </update>
+</mapper>
